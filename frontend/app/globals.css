@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: var(--bg);
+  --color-text: var(--text);
+  --color-card: var(--card);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+}
+
+@layer base {
+  :root {
+    --bg: #F4F6F9;
+    --text: #111827;
+    --text-muted: #6B7280;
+    --text-faint: #9CA3AF;
+    --card: #FFFFFF;
+    --accent: #FF3D57;
+    --border: #E2E8F0;
+  }
+
+  .dark {
+    --bg: #0F172A;
+    --text: #F9FAFB;
+    --text-muted: #9CA3AF;
+    --text-faint: #6B7280;
+    --card: #1E293B;
+    --accent: #FF3D57;
+    --border: #334155;
+  }
+}
+
+/* Base — always explicit, never rely on inheritance for text color */
+html,
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Make sure all plain elements inherit text color explicitly */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+div,
+label,
+li,
+td,
+th {
+  color: inherit;
+}
+
+/* Inputs must always show visible text */
+input,
+textarea,
+select {
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-faint);
+  opacity: 1;
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Theme-change transitions — only on specific elements, NOT * */
+aside,
+header,
+main,
+nav,
+section,
+article,
+footer,
+.card-transition {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
