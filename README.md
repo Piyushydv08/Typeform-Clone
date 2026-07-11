@@ -15,7 +15,7 @@ A full-stack clone of Typeform, built with Next.js (App Router, TypeScript, Tail
 |---|---|
 | **Backend (API)** | https://typeform-clone-backend.onrender.com/ |
 | **Frontend (App)** | https://typeform-clone-ochre.vercel.app/forms |
-| **AI Prompts / Process Log** | See `[PROMPTS.md](https://github.com/Piyushydv08/Typeform-Clone/PROMPTS.md)` in this repo |
+| **AI Prompts / Process Log** | See [PROMPTS.md](./PROMPTS.md) in this repository |
 
 > ⚠️ **Important — open the backend link first!**
 > The backend is hosted on Render's free tier, which spins the server down after a period of inactivity. If you open the frontend link directly, the very first API call will time out or hang while the backend "wakes up" (this can take 30–60 seconds).
@@ -267,4 +267,4 @@ Open `http://localhost:3000`.
 
 ## 📄 Additional Documentation
 
-See **`PROMPTS.md`** for a full walkthrough of the AI-assisted development process for this project — including the initial requirements pass, UI cloning approach, and the specific prompts used with Claude, Stitch, Antigravity, and ChatGPT.
+See [PROMPTS.md](./PROMPTS.md) for a full walkthrough of the AI-assisted development process for this project — including the initial requirements pass, UI cloning approach, and the specific prompts used with Claude, Stitch, Antigravity, and ChatGPT.
