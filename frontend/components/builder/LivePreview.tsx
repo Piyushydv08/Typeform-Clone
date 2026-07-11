@@ -20,8 +20,13 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
     );
   }
 
-  const bgStyle = themeConfig?.backgroundImage 
-    ? { backgroundImage: `url(${themeConfig.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+  const bgStyle: React.CSSProperties = themeConfig?.backgroundImage 
+    ? { 
+        backgroundImage: `url(${themeConfig.backgroundImage})`, 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }
     : { backgroundColor: themeConfig?.backgroundColor || "var(--bg)" };
   
   const textColor = themeConfig?.textColor || "var(--text)";
@@ -29,7 +34,7 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
   const buttonTextColor = themeConfig?.buttonTextColor || "#FFFFFF";
 
   return (
-    <div className="p-12 w-full h-full flex flex-col justify-center relative min-h-[500px]" style={bgStyle}>
+    <div className="p-6 md:p-12 w-full h-full flex flex-col justify-center relative min-h-[500px]" style={bgStyle}>
       {/* Preview badge */}
       <div
         className="absolute top-5 left-5 text-xs font-bold px-3 py-1 rounded-full tracking-widest uppercase"
@@ -39,11 +44,11 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
       </div>
 
       {/* Question heading */}
-      <div className="flex items-start gap-4 mb-3">
-        <div className="font-bold text-xl mt-1 shrink-0 font-mono" style={{ color: buttonColor }}>
+      <div className="flex items-start gap-3 md:gap-4 mb-3">
+        <div className="font-bold text-lg md:text-xl mt-1 shrink-0 font-mono" style={{ color: buttonColor }}>
           {question.order_index + 1}
         </div>
-        <h2 className="text-3xl font-bold leading-tight" style={{ color: textColor }}>
+        <h2 className="text-2xl md:text-3xl font-bold leading-tight" style={{ color: textColor }}>
           {question.title || "Question Title"}
           {question.required && (
             <span style={{ color: buttonColor }} className="ml-2">*</span>
@@ -52,19 +57,20 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
       </div>
 
       {question.description && (
-        <p className="text-lg mb-8 pl-9 opacity-80" style={{ color: textColor }}>
+        <p className="text-lg md:text-xl mb-8 ml-7 md:ml-9 opacity-80" style={{ color: textColor }}>
           {question.description}
         </p>
       )}
 
-      <div className="mt-4 w-full pl-9">
+      {/* Answer Area */}
+      <div className="ml-7 md:ml-9 mt-4 w-full max-w-2xl">
         {/* Short text / email / number */}
         {["short_text", "email", "number"].includes(question.type) && (
           <input
             type="text"
             disabled
             placeholder="Type your answer here…"
-            className="w-full border-b-2 bg-transparent py-3 text-2xl outline-none placeholder:opacity-50"
+            className="w-full border-b-2 bg-transparent py-2 md:py-3 text-xl md:text-2xl outline-none placeholder:opacity-50"
             style={{ borderColor: buttonColor, color: textColor }}
           />
         )}
@@ -74,22 +80,22 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
           <textarea
             disabled
             placeholder="Type your answer here…"
-            className="w-full border-b-2 bg-transparent py-3 text-2xl outline-none resize-none h-32 placeholder:opacity-50"
+            className="w-full border-b-2 bg-transparent py-2 md:py-3 text-xl md:text-2xl outline-none resize-none h-24 md:h-32 placeholder:opacity-50"
             style={{ borderColor: buttonColor, color: textColor }}
           />
         )}
 
         {/* Multiple choice */}
         {question.type === "multiple_choice" && (
-          <div className="space-y-3 max-w-2xl">
+          <div className="space-y-2 md:space-y-3 max-w-2xl">
             {(question.options || []).map((opt, i) => (
               <div
                 key={opt}
-                className="w-full text-left px-5 py-3 rounded-lg border-2 font-medium bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-colors flex items-center gap-3 cursor-pointer"
+                className="w-full text-left px-4 md:px-5 py-2.5 md:py-3 rounded-lg border-2 font-medium bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-colors flex items-center gap-2 md:gap-3 cursor-pointer text-sm md:text-base"
                 style={{ borderColor: buttonColor + "40", color: textColor }}
               >
                 <div 
-                  className="w-6 h-6 flex items-center justify-center rounded bg-black/10 text-xs font-bold font-mono"
+                  className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded bg-black/10 text-xs font-bold font-mono"
                   style={{ color: textColor }}
                 >
                   {String.fromCharCode(65 + i)}
@@ -100,11 +106,11 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
             
             {question.validation_config?.has_other && (
               <div
-                className="w-full text-left px-5 py-3 rounded-lg border-2 font-medium bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-colors flex items-center gap-3 cursor-pointer"
+                className="w-full text-left px-4 md:px-5 py-2.5 md:py-3 rounded-lg border-2 font-medium bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-colors flex items-center gap-2 md:gap-3 cursor-pointer text-sm md:text-base"
                 style={{ borderColor: buttonColor + "40", color: textColor }}
               >
                 <div 
-                  className="w-6 h-6 flex items-center justify-center rounded bg-black/10 text-xs font-bold font-mono"
+                  className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded bg-black/10 text-xs font-bold font-mono"
                   style={{ color: textColor }}
                 >
                   {String.fromCharCode(65 + (question.options?.length || 0))}
@@ -115,11 +121,11 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
             
             {question.validation_config?.has_none && (
               <div
-                className="w-full text-left px-5 py-3 rounded-lg border-2 font-medium bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-colors flex items-center gap-3 cursor-pointer"
+                className="w-full text-left px-4 md:px-5 py-2.5 md:py-3 rounded-lg border-2 font-medium bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-colors flex items-center gap-2 md:gap-3 cursor-pointer text-sm md:text-base"
                 style={{ borderColor: buttonColor + "40", color: textColor }}
               >
                 <div 
-                  className="w-6 h-6 flex items-center justify-center rounded bg-black/10 text-xs font-bold font-mono"
+                  className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded bg-black/10 text-xs font-bold font-mono"
                   style={{ color: textColor }}
                 >
                   {String.fromCharCode(65 + (question.options?.length || 0) + (question.validation_config?.has_other ? 1 : 0))}
@@ -139,7 +145,7 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
           <div className="w-full max-w-2xl relative">
             <select
               disabled
-              className="w-full appearance-none bg-transparent border-b-2 py-3 text-2xl outline-none"
+              className="w-full appearance-none bg-transparent border-b-2 py-2 md:py-3 text-xl md:text-2xl outline-none"
               style={{ borderColor: buttonColor, color: textColor }}
             >
               <option value="" disabled selected>Select an option…</option>
@@ -154,11 +160,11 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
         )}
 
         {question.type === "yes_no" && (
-          <div className="flex gap-4 max-w-md">
+          <div className="flex gap-3 md:gap-4 max-w-md">
             {["Yes", "No"].map((label) => (
               <div
                 key={label}
-                className="flex-1 py-5 border-2 rounded-2xl font-bold text-center text-xl cursor-pointer hover:bg-white/10 transition-colors"
+                className="flex-1 py-3 md:py-5 border-2 rounded-xl md:rounded-2xl font-bold text-center text-lg md:text-xl cursor-pointer hover:bg-white/10 transition-colors"
                 style={{ borderColor: buttonColor, color: textColor }}
               >
                 {label}
@@ -168,11 +174,11 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
         )}
 
         {question.type === "rating" && (
-          <div className="flex gap-3 flex-wrap">
+          <div className="flex gap-2 md:gap-3 flex-wrap">
             {[1, 2, 3, 4, 5].map((n) => (
               <div
                 key={n}
-                className="w-14 h-14 flex items-center justify-center border-2 rounded-2xl text-xl font-bold cursor-pointer hover:bg-white/10 transition-colors"
+                className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center border-2 rounded-xl md:rounded-2xl text-lg md:text-xl font-bold cursor-pointer hover:bg-white/10 transition-colors"
                 style={{ borderColor: buttonColor, color: textColor }}
               >
                 {n}
@@ -183,19 +189,19 @@ export function LivePreview({ question, themeConfig }: { question?: Question; th
 
         {question.type === "file_upload" && (
           <div
-            className="w-full max-w-xl p-12 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-colors"
+            className="w-full max-w-xl p-8 md:p-12 border-2 border-dashed rounded-xl md:rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-colors"
             style={{ borderColor: buttonColor, color: textColor }}
           >
-            <UploadCloud size={44} className="mb-4" />
-            <div className="font-bold text-xl mb-1">
+            <UploadCloud size={32} className="mb-2 md:mb-4 md:w-11 md:h-11" />
+            <div className="font-bold text-lg md:text-xl mb-1 text-center">
               Choose file or drag here
             </div>
-            <div className="text-sm opacity-70">Size limit: 10 MB</div>
+            <div className="text-xs md:text-sm opacity-70">Size limit: 10 MB</div>
           </div>
         )}
       </div>
 
-      <div className="mt-12 pl-9">
+      <div className="mt-8 md:mt-12 ml-7 md:ml-9">
         <button
           disabled
           className="px-6 py-2.5 rounded-md font-bold transition-opacity hover:opacity-90 flex items-center gap-2 shadow-sm cursor-not-allowed opacity-60"

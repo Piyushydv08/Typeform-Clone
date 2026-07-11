@@ -75,28 +75,28 @@ export function QuestionSlide({ question, index, value, error, onChange, onAdvan
       animate="center"
       exit="exit"
       transition={{ type: "spring", stiffness: 260, damping: 28 }}
-      className="absolute inset-0 flex flex-col justify-center max-w-3xl mx-auto px-8 md:px-16 w-full"
+      className="absolute inset-0 flex flex-col justify-center max-w-3xl mx-auto px-4 md:px-16 w-full"
     >
       {/* Question heading */}
-      <div className="flex items-start gap-4 mb-3">
-        <div className="font-bold text-xl mt-1.5 shrink-0 font-mono" style={{ color: "var(--accent)" }}>
+      <div className="flex items-start gap-3 md:gap-4 mb-3">
+        <div className="font-bold text-lg md:text-xl mt-1.5 shrink-0 font-mono" style={{ color: "var(--accent)" }}>
           {index + 1}
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: "var(--text)" }}>
+        <h2 className="text-2xl md:text-4xl font-bold leading-tight" style={{ color: "var(--text)" }}>
           {question.title}
           {question.required && (
-            <span style={{ color: "var(--accent)" }} className="ml-2 text-2xl align-super">*</span>
+            <span style={{ color: "var(--accent)" }} className="ml-2 text-xl md:text-2xl align-super">*</span>
           )}
         </h2>
       </div>
 
       {question.description && (
-        <p className="text-lg mb-8 pl-10" style={{ color: "var(--text-muted)" }}>
+        <p className="text-base md:text-lg mb-8 ml-7 md:ml-10" style={{ color: "var(--text-muted)" }}>
           {question.description}
         </p>
       )}
 
-      <div className="mt-4 w-full pl-10">
+      <div className="mt-4 w-full ml-7 md:ml-10 max-w-2xl">
         {renderInput(question, value, onChange, onAdvance)}
 
         {error && (
@@ -112,7 +112,7 @@ export function QuestionSlide({ question, index, value, error, onChange, onAdvan
       </div>
 
       {/* OK button */}
-      <div className="mt-12 pl-10 flex items-center gap-3">
+      <div className="mt-8 md:mt-12 ml-7 md:ml-10 flex items-center gap-3">
         <button
           onClick={onAdvance}
           className="flex items-center gap-2.5 font-bold py-3 px-7 rounded-full active:scale-95 transition-all hover:shadow-lg hover:-translate-y-0.5"
@@ -174,7 +174,7 @@ function renderInput(
           onFocus={onFocusBorder}
           onBlur={onBlurBorder}
           placeholder="Type your answer here…"
-          className="w-full py-3 text-2xl outline-none bg-transparent"
+          className="w-full py-2 md:py-3 text-xl md:text-2xl outline-none bg-transparent"
           style={inputStyle}
         />
       );
@@ -189,7 +189,7 @@ function renderInput(
           onFocus={onFocusBorder}
           onBlur={onBlurBorder}
           placeholder="0"
-          className="w-full py-3 text-2xl outline-none bg-transparent"
+          className="w-full py-2 md:py-3 text-xl md:text-2xl outline-none bg-transparent"
           style={inputStyle}
         />
       );
@@ -203,7 +203,7 @@ function renderInput(
           onFocus={onFocusBorder}
           onBlur={onBlurBorder}
           placeholder="Type your answer here…"
-          className="w-full py-3 text-2xl outline-none resize-none min-h-[120px] bg-transparent"
+          className="w-full py-2 md:py-3 text-xl md:text-2xl outline-none resize-none min-h-[90px] md:min-h-[120px] bg-transparent"
           style={inputStyle}
         />
       );
@@ -243,15 +243,16 @@ function renderInput(
           <button
             key={i}
             onClick={() => handleSelect(opt)}
-            className="w-full flex items-center text-left gap-4 p-4 border-2 rounded-2xl transition-all"
+            className="w-full flex items-center text-left gap-2 md:gap-4 p-3 md:p-4 border-2 rounded-xl md:rounded-2xl transition-all cursor-pointer"
             style={{
-              borderColor: isSelected ? "var(--accent)" : "var(--border)",
-              backgroundColor: isSelected ? "rgba(255,61,87,0.08)" : "var(--card)",
-              boxShadow: isSelected ? "0 2px 12px rgba(255,61,87,0.15)" : "none",
+              borderColor: isSelected ? "var(--accent)" : "var(--accent)", // Changed to match LivePreview for consistent border
+              backgroundColor: isSelected ? "var(--accent)" : "transparent",
+              color: isSelected ? "var(--accent-text, #fff)" : "var(--text)",
+              boxShadow: isSelected ? "0 2px 12px rgba(0,0,0,0.15)" : "none",
             }}
           >
             <div
-              className="w-8 h-8 rounded-lg border-2 flex items-center justify-center text-xs font-bold shrink-0 transition-all"
+              className="w-6 h-6 md:w-8 md:h-8 rounded-md md:rounded-lg border-2 flex items-center justify-center text-xs font-bold shrink-0 transition-all"
               style={{
                 borderColor: isSelected ? "var(--accent)" : "var(--border)",
                 backgroundColor: isSelected ? "var(--accent)" : "transparent",
@@ -261,8 +262,8 @@ function renderInput(
               {label}
             </div>
             <span
-              className="text-xl font-medium"
-              style={{ color: isSelected ? "var(--accent)" : "var(--text)" }}
+              className="text-lg md:text-xl font-medium"
+              style={{ color: "inherit" }}
             >
               {opt}
             </span>
@@ -271,7 +272,7 @@ function renderInput(
       };
 
       return (
-        <div className="space-y-3 max-w-2xl">
+        <div className="space-y-2 md:space-y-3 max-w-2xl">
           {opts.map((opt, i) => renderOption(opt, i, String.fromCharCode(65 + i)))}
           {hasOther && renderOption("Other", opts.length, String.fromCharCode(65 + opts.length))}
           {hasNone && renderOption("None of the above", opts.length + (hasOther ? 1 : 0), String.fromCharCode(65 + opts.length + (hasOther ? 1 : 0)))}
@@ -290,7 +291,7 @@ function renderInput(
             }}
             onFocus={(e) => { e.currentTarget.style.borderBottomColor = "var(--accent)"; }}
             onBlur={(e) => { e.currentTarget.style.borderBottomColor = "var(--border)"; }}
-            className="w-full appearance-none bg-transparent border-b-2 py-4 text-2xl outline-none cursor-pointer"
+            className="w-full appearance-none bg-transparent border-b-2 py-3 md:py-4 text-xl md:text-2xl outline-none cursor-pointer"
             style={{ borderColor: "var(--border)", color: "var(--text)" }}
           >
             <option value="" disabled>Select an option…</option>
@@ -306,7 +307,7 @@ function renderInput(
 
     case "yes_no":
       return (
-        <div className="flex gap-4 max-w-sm">
+        <div className="flex gap-3 md:gap-4 max-w-sm">
           {[
             { val: "true", label: "Yes", key: "Y" },
             { val: "false", label: "No", key: "N" },
@@ -316,15 +317,15 @@ function renderInput(
               <button
                 key={val}
                 onClick={() => { onChange(val); setTimeout(onAdvance, 350); }}
-                className="flex-1 py-5 border-2 rounded-2xl font-bold text-center text-xl transition-all flex flex-col items-center gap-1"
+                className="flex-1 py-3 md:py-5 border-2 rounded-xl md:rounded-2xl font-bold text-center text-lg md:text-xl transition-all flex flex-col items-center gap-1 cursor-pointer"
                 style={{
-                  borderColor: isSelected ? "var(--accent)" : "var(--border)",
-                  backgroundColor: isSelected ? "rgba(255,61,87,0.08)" : "var(--card)",
-                  color: isSelected ? "var(--accent)" : "var(--text)",
+                  borderColor: "var(--accent)",
+                  backgroundColor: isSelected ? "var(--accent)" : "transparent",
+                  color: isSelected ? "var(--accent-text, #fff)" : "var(--text)",
                 }}
               >
-                <span className="text-2xl font-bold">{label}</span>
-                <span className="text-xs font-mono" style={{ color: "var(--text-faint)" }}>press {key}</span>
+                <span className="text-xl md:text-2xl font-bold">{label}</span>
+                <span className="text-[10px] md:text-xs font-mono" style={{ color: "var(--text-faint)" }}>press {key}</span>
               </button>
             );
           })}
@@ -342,13 +343,13 @@ function renderInput(
               <button
                 key={n}
                 onClick={() => { onChange(n.toString()); setTimeout(onAdvance, 350); }}
-                className="w-14 h-14 flex items-center justify-center border-2 rounded-2xl text-xl font-bold transition-all"
+                className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center border-2 rounded-xl md:rounded-2xl text-lg md:text-xl font-bold transition-all cursor-pointer"
                 style={{
-                  borderColor: isSelected ? "var(--accent)" : "var(--border)",
-                  backgroundColor: isSelected ? "var(--accent)" : "var(--card)",
-                  color: isSelected ? "#fff" : "var(--text)",
+                  borderColor: "var(--accent)",
+                  backgroundColor: isSelected ? "var(--accent)" : "transparent",
+                  color: isSelected ? "var(--accent-text, #fff)" : "var(--text)",
                   transform: isSelected ? "scale(1.1)" : "scale(1)",
-                  boxShadow: isSelected ? "0 4px 12px rgba(255,61,87,0.3)" : "none",
+                  boxShadow: isSelected ? "0 4px 12px rgba(0,0,0,0.15)" : "none",
                 }}
               >
                 {n}
@@ -362,22 +363,23 @@ function renderInput(
     case "file_upload":
       return (
         <label
-          className="w-full max-w-xl p-12 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all"
+          className="w-full max-w-xl p-8 md:p-12 border-2 border-dashed rounded-xl md:rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all"
           style={{
-            borderColor: value ? "var(--accent)" : "var(--border)",
-            backgroundColor: value ? "rgba(255,61,87,0.04)" : "var(--card)",
+            borderColor: value ? "var(--accent)" : "var(--accent)",
+            backgroundColor: value ? "rgba(0,0,0,0.04)" : "transparent",
+            color: "var(--text)",
           }}
         >
           <input type="file" className="hidden" onChange={handleFileChange} />
           <UploadCloud
-            size={44}
-            className="mb-4"
+            size={32}
+            className="mb-2 md:mb-4 md:w-11 md:h-11"
             style={{ color: value ? "var(--accent)" : "var(--text-faint)" }}
           />
-          <div className="font-bold text-xl mb-1" style={{ color: "var(--text)" }}>
+          <div className="font-bold text-lg md:text-xl mb-1 text-center" style={{ color: "var(--text)" }}>
             {value ? (value as File).name : "Choose file or drag here"}
           </div>
-          <div className="text-sm" style={{ color: "var(--text-muted)" }}>Size limit: 10 MB</div>
+          <div className="text-xs md:text-sm" style={{ color: "var(--text-muted)" }}>Size limit: 10 MB</div>
         </label>
       );
 

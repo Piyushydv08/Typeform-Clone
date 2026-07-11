@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, use, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { Form } from "@/lib/types";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -11,7 +12,7 @@ import { LivePreview } from "@/components/builder/LivePreview";
 import { ThankYouSettings } from "@/components/builder/ThankYouSettings";
 import { WorkflowCanvas } from "@/components/builder/WorkflowCanvas";
 import { DesignToolbar } from "@/components/builder/DesignToolbar";
-import { Eye, Copy, X, ArrowLeft, BarChart3, Check, Edit2, CircleHelp, ChevronDown, Blocks, PencilRuler, FileText } from "lucide-react";
+import { Eye, Copy, X, ArrowLeft, BarChart3, Check, Edit2, CircleHelp, ChevronDown, Blocks, PencilRuler, FileText, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GlobalNavbar } from "@/components/ui/GlobalNavbar";
@@ -29,7 +30,10 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
   const [publishUrl, setPublishUrl] = useState<string | null>(null);
   const [publishLoading, setPublishLoading] = useState(false);
   const [mobileTab, setMobileTab] = useState<"list" | "preview" | "editor">("preview");
-  
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
+  const [isFullScreenPreview, setIsFullScreenPreview] = useState(false);
+  const [publishAnimationState, setPublishAnimationState] = useState<"idle" | "arrow" | "live" | "done">("idle");
+
   const [titleEditing, setTitleEditing] = useState(false);
   const [titleValue, setTitleValue] = useState("");
   const [titleSaving, setTitleSaving] = useState(false);
@@ -105,11 +109,11 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
       setTitleValue(form?.title || "");
       return;
     }
-    
+
     if (!titleValue.trim()) {
-       setTitleValue(form.title);
-       setTitleEditing(false);
-       return;
+      setTitleValue(form.title);
+      setTitleEditing(false);
+      return;
     }
 
     setTitleSaving(true);
@@ -135,7 +139,12 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
       const res = await api.forms.publish(form.id);
       setForm({ ...form, status: res.status as any });
       if (res.status === "published") {
-        setPublishUrl(res.url);
+        setPublishAnimationState("arrow");
+        setTimeout(() => setPublishAnimationState("live"), 1200);
+        setTimeout(() => {
+          setPublishAnimationState("done");
+          setPublishUrl(res.url);
+        }, 3000);
       } else {
         toast("Form unpublished", "Back in draft mode.", "info");
       }
@@ -186,8 +195,8 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
           </Link>
           <span className="text-gray-400 dark:text-gray-500 text-sm px-1">&gt;</span>
           <div className="h-5 w-px" style={{ backgroundColor: "var(--border)" }} />
-          
-          <div className="flex items-center gap-3 ml-1">
+
+          <div className="hidden md:flex items-center gap-3 ml-1">
             {titleEditing ? (
               <input
                 ref={titleInputRef}
@@ -238,7 +247,7 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
 
         {/* Center tabs */}
         <div
-          className="flex gap-0.5 p-1 rounded-xl border border-gray-200 dark:border-[#2b3544] bg-gray-50 dark:bg-[#1E293B]"
+          className="flex gap-0.5 p-1 rounded-xl border border-gray-200 dark:border-[#2b3544] bg-gray-50 dark:bg-[#1E293B] overflow-x-auto hide-scrollbar max-w-[50vw] md:max-w-none"
         >
           {tabs.map((t) => (
             <button
@@ -265,16 +274,30 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
         {/* Right */}
         <div className="flex items-center gap-2 md:gap-4">
           {form.status === "published" && (
-            <a
-              href={`/f/${form.id}`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 px-2 md:px-3 py-1.5 text-sm font-medium rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(100,100,100,0.1)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = ""; }}
-            >
-              <Eye size={15} /> <span className="hidden lg:inline">Preview</span>
-            </a>
+            <>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.origin + "/f/" + form.id);
+                  toast("Copied!", "Link copied to clipboard", "success");
+                }}
+                className="flex items-center gap-2 px-2 md:px-3 py-1.5 text-sm font-medium rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(100,100,100,0.1)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = ""; }}
+                title="Copy Link"
+              >
+                <Copy size={15} /> <span className="hidden lg:inline">Copy Link</span>
+              </button>
+              <a
+                href={`/f/${form.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 px-2 md:px-3 py-1.5 text-sm font-medium rounded-lg transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(100,100,100,0.1)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = ""; }}
+              >
+                <Eye size={15} /> <span className="hidden lg:inline">Preview</span>
+              </a>
+            </>
           )}
           <button
             onClick={handlePublish}
@@ -295,7 +318,7 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                 .responsive-panel { width: 100% !important; flex: 1 !important; border: none !important; }
               }
             `}</style>
-            
+
             {/* Mobile Tab Switcher */}
             <div className="md:hidden flex border-b shrink-0 p-2 gap-2 overflow-x-auto" style={{ backgroundColor: "var(--card)", borderColor: "var(--border)" }}>
               {(["list", "preview", "editor"] as const).map(tab => (
@@ -312,8 +335,8 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
 
             {/* Question list */}
             <div
-              className={`flex-col shrink-0 ${mobileTab === "list" ? "flex" : "hidden md:flex"} border-r relative responsive-panel`}
-              style={{ width: leftWidth, backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+              className={`flex-col shrink-0 ${mobileTab === "list" ? "flex" : "hidden md:flex"} md:border-r relative responsive-panel z-10 w-full md:w-auto`}
+              style={{ width: typeof window !== 'undefined' && window.innerWidth < 768 ? '100%' : leftWidth, backgroundColor: "var(--card)", borderColor: "var(--border)" }}
             >
               <QuestionList
                 form={form}
@@ -321,7 +344,7 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                 onSelect={setSelectedQuestionId}
                 onUpdate={setForm}
               />
-              <div 
+              <div
                 className="hidden md:block absolute top-0 right-0 w-2 h-full cursor-col-resize z-10 opacity-0 hover:opacity-100 bg-blue-500/20"
                 style={{ transform: "translateX(50%)" }}
                 onMouseDown={startResizeLeft}
@@ -333,19 +356,28 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
               className={`flex-1 flex-col items-center overflow-hidden ${mobileTab === "preview" ? "flex" : "hidden md:flex"} responsive-panel`}
               style={{ backgroundColor: "var(--bg)" }}
             >
-              <DesignToolbar form={form} onUpdate={setForm} />
-              
-              <div className="w-full flex-1 flex flex-col items-center overflow-y-auto p-4 md:p-8">
+              <DesignToolbar
+                form={form}
+                onUpdate={setForm}
+                isMobilePreview={isMobilePreview}
+                onMobileToggle={() => setIsMobilePreview(!isMobilePreview)}
+                onPlayPreview={() => setIsFullScreenPreview(true)}
+              />
+
+              <div className="w-full flex-1 flex flex-col items-center justify-center overflow-y-auto p-4 md:p-8 bg-black/5 dark:bg-black/20">
                 <div
-                  className="w-full max-w-3xl rounded-2xl overflow-hidden min-h-[500px] border"
-                  style={{
+                  className={`transition-all duration-300 shadow-sm overflow-hidden flex-shrink-0 relative ${isMobilePreview ? 'w-[375px] h-[812px] rounded-[48px] border-[12px] border-black shadow-2xl dark:border-black' : 'w-full max-w-3xl min-h-[500px] rounded-2xl border'}`}
+                  style={!isMobilePreview ? {
                     backgroundColor: "var(--card)",
                     borderColor: "var(--border)",
                     boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
-                  }}
+                  } : { backgroundColor: "var(--card)" }}
                 >
-                  <LivePreview 
-                    question={form.questions.find((q) => q.id === selectedQuestionId)} 
+                  {isMobilePreview && (
+                    <div className="absolute top-0 inset-x-0 h-6 bg-black z-20 rounded-b-3xl w-40 mx-auto" />
+                  )}
+                  <LivePreview
+                    question={form.questions.find((q) => q.id === selectedQuestionId)}
                     themeConfig={form.theme_config}
                   />
                 </div>
@@ -354,10 +386,10 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
 
             {/* Editor */}
             <div
-              className={`flex-col overflow-y-auto shrink-0 ${mobileTab === "editor" ? "flex" : "hidden md:flex"} border-l relative responsive-panel`}
-              style={{ width: rightWidth, backgroundColor: "var(--card)", borderColor: "var(--border)" }}
+              className={`flex-col overflow-y-auto shrink-0 ${mobileTab === "editor" ? "flex" : "hidden md:flex"} md:border-l relative responsive-panel w-full md:w-auto z-10`}
+              style={{ width: typeof window !== 'undefined' && window.innerWidth < 768 ? '100%' : rightWidth, backgroundColor: "var(--card)", borderColor: "var(--border)" }}
             >
-              <div 
+              <div
                 className="hidden md:block absolute top-0 left-0 w-2 h-full cursor-col-resize z-10 opacity-0 hover:opacity-100 bg-blue-500/20"
                 style={{ transform: "translateX(-50%)" }}
                 onMouseDown={startResizeRight}
@@ -382,11 +414,11 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
           <div className="h-full overflow-y-auto" style={{ backgroundColor: "var(--bg)" }}>
             <div className="max-w-4xl mx-auto py-12 px-8 flex flex-col items-center">
               <h2 className="text-2xl font-normal mb-8 text-gray-900 dark:text-gray-100">Choose how you'd like to share your form</h2>
-              
+
               <div className="w-full bg-white dark:bg-[#1E293B] border rounded-2xl p-6 mb-8 shadow-sm" style={{ borderColor: "var(--border)" }}>
                 <div className="flex items-center gap-4 mb-8">
                   <div className="flex-1 flex items-center bg-gray-50 dark:bg-black/20 border rounded-lg overflow-hidden" style={{ borderColor: "var(--border)" }}>
-                    <button 
+                    <button
                       onClick={() => {
                         navigator.clipboard.writeText(window.location.origin + "/f/" + form.id);
                         toast("Copied!", "Link copied to clipboard", "success");
@@ -395,9 +427,9 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                     >
                       <Copy size={14} /> Copy link
                     </button>
-                    <input 
-                      type="text" 
-                      readOnly 
+                    <input
+                      type="text"
+                      readOnly
                       value={window.location.origin + "/f/" + form.id}
                       className="flex-1 bg-transparent px-3 text-sm text-gray-700 dark:text-gray-300 outline-none"
                     />
@@ -469,6 +501,48 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
         )}
       </div>
 
+      {/* Full Screen Publish Animation */}
+      <AnimatePresence>
+        {(publishAnimationState === "arrow" || publishAnimationState === "live") && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-900 overflow-hidden"
+          >
+            {publishAnimationState === "arrow" && (
+              <motion.div
+                key="arrow"
+                initial={{ x: "-100vw", opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: "100vw", opacity: 0 }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              >
+                <ArrowRight className="w-24 h-24 md:w-32 md:h-32 text-white drop-shadow-2xl" />
+              </motion.div>
+            )}
+            {publishAnimationState === "live" && (
+              <motion.div
+                key="live"
+                initial={{ scale: 0.5, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 1.2, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="flex flex-col items-center gap-4 md:gap-6 px-4"
+              >
+                <span className="text-7xl md:text-9xl animate-bounce">🚀</span>
+                <h1 
+                  className="text-5xl md:text-7xl font-extrabold tracking-tight drop-shadow-2xl text-center"
+                  style={{ color: "#FF3D57" }}
+                >
+                  It's Live!
+                </h1>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Publish Modal */}
       {publishUrl && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -530,6 +604,23 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Full Screen Preview Modal */}
+      {isFullScreenPreview && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 md:p-12">
+          <button
+            onClick={() => setIsFullScreenPreview(false)}
+            className="absolute top-6 right-6 text-white hover:text-gray-300 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10"
+          >
+            <X size={24} />
+          </button>
+          <div className={`w-full h-full ${isMobilePreview ? 'max-w-[375px] max-h-[812px]' : 'max-w-5xl max-h-[800px]'} rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 bg-white relative`}>
+            <LivePreview
+              question={form.questions.find((q) => q.id === selectedQuestionId)}
+              themeConfig={form.theme_config}
+            />
           </div>
         </div>
       )}

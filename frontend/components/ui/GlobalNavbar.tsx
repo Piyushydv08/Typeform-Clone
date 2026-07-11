@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Blocks, PencilRuler, Settings, CircleHelp } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, Blocks, PencilRuler, Settings, CircleHelp, Menu, X } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 
 export function GlobalNavbar() {
   const [isOrgOpen, setIsOrgOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <header className="h-14 border-b flex items-center justify-between px-6 shrink-0 bg-white dark:bg-[#192231] border-gray-200 dark:border-[#2b3544] text-gray-900 dark:text-gray-100">
@@ -58,10 +60,11 @@ export function GlobalNavbar() {
         )}
       </div>
 
-      <div className="flex items-center gap-6 text-sm font-medium">
-        <button className="flex items-center gap-2 text-gray-700 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+      {/* Desktop Links */}
+      <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+        <Link href="/integrations" className="flex items-center gap-2 text-gray-700 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
           <Blocks size={16} /> Integrations
-        </button>
+        </Link>
         <button className="flex items-center gap-2 text-gray-700 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
           <PencilRuler size={16} /> Brand kit
         </button>
@@ -82,6 +85,46 @@ export function GlobalNavbar() {
           PY
         </div>
       </div>
+
+      {/* Mobile Menu Toggle */}
+      <div className="flex items-center gap-3 md:hidden">
+        <ThemeSwitcher />
+        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-[#D92D20] bg-[#FFE1E1]">
+          PY
+        </div>
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+          className="p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-md"
+        >
+          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Mobile Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="absolute top-14 left-0 right-0 border-b bg-white dark:bg-[#192231] z-40 shadow-lg md:hidden" style={{ borderColor: "var(--border)" }}>
+          <div className="flex flex-col p-4 gap-4">
+            <Link href="/integrations" className="flex items-center gap-2 text-gray-700 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 transition-colors font-medium">
+              <Blocks size={16} /> Integrations
+            </Link>
+            <button className="flex items-center gap-2 text-gray-700 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 transition-colors font-medium">
+              <PencilRuler size={16} /> Brand kit
+            </button>
+            <button className="flex items-center gap-2 text-gray-700 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 transition-colors font-medium">
+              <Settings size={16} /> Settings
+            </button>
+            <button className="flex items-center gap-2 text-gray-700 hover:text-black dark:text-gray-400 dark:hover:text-gray-200 transition-colors font-medium">
+              <CircleHelp size={16} /> Help
+            </button>
+            <button 
+              className="text-white px-3 py-2 rounded text-sm font-semibold transition-colors opacity-90 hover:opacity-100 w-full"
+              style={{ backgroundColor: "var(--accent)" }}
+            >
+              View plans
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

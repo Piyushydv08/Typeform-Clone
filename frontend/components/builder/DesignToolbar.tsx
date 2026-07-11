@@ -14,7 +14,7 @@ const PRESET_THEMES = [
   { id: "coral", name: "Coral", bg: "#FFEFEA", text: "#4A154B", button: "#E01E5A", buttonText: "#FFFFFF" },
 ];
 
-export function DesignToolbar({ form, onUpdate }: { form: Form; onUpdate: (f: Form) => void }) {
+export function DesignToolbar({ form, onUpdate, isMobilePreview, onMobileToggle, onPlayPreview }: { form: Form; onUpdate: (f: Form) => void; isMobilePreview?: boolean; onMobileToggle?: () => void; onPlayPreview?: () => void; }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"gallery" | "my_themes">("gallery");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,24 +75,24 @@ export function DesignToolbar({ form, onUpdate }: { form: Form; onUpdate: (f: Fo
   return (
     <div className="w-full flex items-center justify-between px-4 py-2 border-b bg-white dark:bg-[#1E293B]" style={{ borderColor: "var(--border)" }}>
       {/* Left items */}
-      <div className="flex items-center gap-4 relative">
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm transition-opacity hover:opacity-90" style={{ backgroundColor: "var(--text)", color: "var(--bg)" }}>
-          <Plus size={16} /> Add content
+      <div className="flex items-center gap-2 md:gap-4 relative overflow-x-auto hide-scrollbar whitespace-nowrap pr-2">
+        <button className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg font-medium text-xs md:text-sm transition-opacity hover:opacity-90 shrink-0" style={{ backgroundColor: "var(--text)", color: "var(--bg)" }}>
+          <Plus size={16} /> <span className="hidden sm:inline">Add content</span>
         </button>
 
         <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
 
         <button 
           onClick={() => setOpen(!open)}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${open ? "bg-black/5" : "hover:bg-black/5"}`}
+          className={`flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-colors shrink-0 ${open ? "bg-black/5" : "hover:bg-black/5"}`}
           style={{ color: "var(--text)" }}
         >
-          <Palette size={16} /> Design
+          <Palette size={16} /> <span className="hidden sm:inline">Design</span>
         </button>
 
         {/* Design Popover */}
         {open && (
-          <div className="absolute top-full left-0 mt-2 w-[400px] bg-white dark:bg-[#1E293B] border rounded-xl shadow-xl z-50 overflow-hidden" style={{ borderColor: "var(--border)" }}>
+          <div className="absolute top-full left-0 mt-2 w-[calc(100vw-32px)] max-w-[400px] bg-white dark:bg-[#1E293B] border rounded-xl shadow-xl z-50 overflow-hidden" style={{ borderColor: "var(--border)" }}>
             <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: "var(--border)" }}>
               <div className="flex items-center gap-2 font-semibold">
                 <Palette size={16} /> Design
@@ -176,14 +176,14 @@ export function DesignToolbar({ form, onUpdate }: { form: Form; onUpdate: (f: Fo
       </div>
 
       {/* Right items */}
-      <div className="flex items-center gap-3 text-gray-500">
-        <button className="p-1.5 hover:bg-black/5 rounded-md transition-colors"><Smartphone size={18} /></button>
-        <button className="p-1.5 hover:bg-black/5 rounded-md transition-colors"><Play size={18} /></button>
-        <div className="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
-        <button className="p-1.5 hover:bg-black/5 rounded-md transition-colors"><Accessibility size={18} /></button>
-        <button className="p-1.5 hover:bg-black/5 rounded-md transition-colors"><Undo2 size={18} /></button>
-        <button className="p-1.5 hover:bg-black/5 rounded-md transition-colors"><Languages size={18} /></button>
-        <button className="p-1.5 hover:bg-black/5 rounded-md transition-colors"><Settings size={18} /></button>
+      <div className="flex items-center gap-1.5 md:gap-3 text-gray-500 shrink-0">
+        <button type="button" onClick={(e) => { e.preventDefault(); onMobileToggle?.(); }} className={`p-1.5 rounded-md transition-colors ${isMobilePreview ? 'bg-black/10 text-black dark:text-white dark:bg-white/20' : 'hover:bg-black/5'}`} title="Mobile Preview"><Smartphone size={16} className="md:w-[18px] md:h-[18px]" /></button>
+        <button type="button" onClick={(e) => { e.preventDefault(); onPlayPreview?.(); }} className="p-1.5 hover:bg-black/5 rounded-md transition-colors" title="Play Preview"><Play size={16} className="md:w-[18px] md:h-[18px]" /></button>
+        <div className="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-0.5 md:mx-1" />
+        <button className="hidden sm:block p-1.5 hover:bg-black/5 rounded-md transition-colors"><Accessibility size={16} className="md:w-[18px] md:h-[18px]" /></button>
+        <button className="hidden sm:block p-1.5 hover:bg-black/5 rounded-md transition-colors"><Undo2 size={16} className="md:w-[18px] md:h-[18px]" /></button>
+        <button className="hidden sm:block p-1.5 hover:bg-black/5 rounded-md transition-colors"><Languages size={16} className="md:w-[18px] md:h-[18px]" /></button>
+        <button className="p-1.5 hover:bg-black/5 rounded-md transition-colors"><Settings size={16} className="md:w-[18px] md:h-[18px]" /></button>
       </div>
     </div>
   );

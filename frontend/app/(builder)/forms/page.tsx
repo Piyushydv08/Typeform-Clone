@@ -104,8 +104,8 @@ export default function Dashboard() {
       <GlobalNavbar />
 
       {/* Tabs Row */}
-      <div className="flex items-center gap-8 px-6 border-b shrink-0 bg-[#fbfbfb] dark:bg-transparent" style={{ borderColor: "var(--border)" }}>
-        <div className="flex gap-0.5 p-1 rounded-xl border border-gray-200 dark:border-[#2b3544] bg-gray-50 dark:bg-[#1E293B] my-3">
+      <div className="flex items-center gap-8 px-4 md:px-6 border-b shrink-0 bg-[#fbfbfb] dark:bg-transparent overflow-x-auto hide-scrollbar" style={{ borderColor: "var(--border)" }}>
+        <div className="flex gap-0.5 p-1 rounded-xl border border-gray-200 dark:border-[#2b3544] bg-gray-50 dark:bg-[#1E293B] my-3 min-w-max">
           {[
             { id: "Forms", icon: FileText },
             { id: "Contacts", icon: Users },
@@ -132,7 +132,7 @@ export default function Dashboard() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
         {activeTab !== "Research Flow" && (
-          <aside className="w-[260px] border-r flex flex-col shrink-0" style={{ borderColor: "var(--border)", backgroundColor: "var(--bg)" }}>
+          <aside className="hidden md:flex w-[260px] border-r flex-col shrink-0" style={{ borderColor: "var(--border)", backgroundColor: "var(--bg)" }}>
             <div className="p-4 flex-1 overflow-y-auto">
               {activeTab === "Forms" ? (
                 <>
@@ -288,12 +288,12 @@ export default function Dashboard() {
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col overflow-hidden bg-[#fafafa] dark:bg-transparent">
           {activeTab === "Forms" ? (
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
               <div className="max-w-[1200px] mx-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8 pb-4 border-b" style={{ borderColor: "var(--border)" }}>
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 pb-4 border-b" style={{ borderColor: "var(--border)" }}>
                   <div className="flex items-center gap-4">
-                    <h1 className="text-2xl font-light" style={{ color: "var(--text)" }}>My workspace</h1>
+                    <h1 className="text-xl md:text-2xl font-light" style={{ color: "var(--text)" }}>My workspace</h1>
                     <div className="relative">
                       <MoreVertical size={16} className="text-gray-400 cursor-pointer hover:text-gray-600" onClick={(e) => { e.stopPropagation(); setWorkspaceMenuOpen(!workspaceMenuOpen); }} />
                       {workspaceMenuOpen && (
@@ -307,8 +307,15 @@ export default function Dashboard() {
                         </>
                       )}
                     </div>
-                    <button className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 ml-4">
+                    <button className="hidden md:flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 ml-4">
                       <UserPlus size={16} /> Invite
+                    </button>
+                    <button
+                      onClick={handleCreate}
+                      className="md:hidden flex items-center gap-2 px-3 py-1.5 rounded-md font-semibold text-sm transition-opacity hover:opacity-90 ml-auto"
+                      style={{ backgroundColor: "#2b2a35", color: "#fff" }}
+                    >
+                      <Plus size={14} /> Create form
                     </button>
                   </div>
 
@@ -353,7 +360,7 @@ export default function Dashboard() {
                 ) : viewMode === "list" ? (
                   <div className="w-full">
                     {/* List Header */}
-                    <div className="grid grid-cols-[1fr_100px_100px_150px_100px_40px] gap-4 px-4 py-2 text-xs font-medium text-gray-500 mb-2">
+                    <div className="hidden md:grid grid-cols-[1fr_100px_100px_150px_100px_40px] gap-4 px-4 py-2 text-xs font-medium text-gray-500 mb-2">
                       <div></div>
                       <div className="text-right">Responses</div>
                       <div className="text-right">Completed</div>
@@ -591,19 +598,19 @@ function FormListItem({ form, onDuplicate, onPublish, onDelete, onRename }: any)
 
   return (
     <div
-      className="grid grid-cols-[1fr_100px_100px_150px_100px_40px] gap-4 items-center px-4 py-3 rounded-xl border bg-white hover:shadow-md transition-shadow cursor-pointer relative group"
+      className="flex md:grid md:grid-cols-[1fr_100px_100px_150px_100px_40px] gap-4 items-center justify-between px-4 py-3 rounded-xl border bg-white hover:shadow-md transition-shadow cursor-pointer relative group"
       style={{ borderColor: "var(--border)", backgroundColor: "var(--card)" }}
       onClick={(e) => { if (!(e.target as HTMLElement).closest(".kebab-menu")) router.push(`/forms/${form.id}/edit`); }}
     >
-      <div className="flex items-center gap-4 min-w-0">
-        <div className="w-8 h-8 rounded-lg shrink-0 opacity-90" style={{ backgroundColor: "var(--accent)" }} />
+      <div className="flex items-center gap-4 min-w-0 flex-1">
+        <div className="w-8 h-8 rounded-lg shrink-0 opacity-90 hidden md:block" style={{ backgroundColor: "var(--accent)" }} />
         <div className="flex flex-col min-w-0">
           <span className="font-semibold text-sm truncate" style={{ color: "var(--text)" }}>{form.title}</span>
-          {form.description && <span className="text-xs text-gray-500 truncate mt-0.5">{form.description}</span>}
+          {form.description && <span className="text-xs text-gray-500 truncate mt-0.5 hidden md:block">{form.description}</span>}
         </div>
       </div>
-      <div className="text-right text-sm text-gray-400">{form.response_count || 0}</div>
-      <div className="text-right text-sm">
+      <div className="hidden md:block text-right text-sm text-gray-400">{form.response_count || 0}</div>
+      <div className="hidden md:block text-right text-sm">
         {isPublished ? (
           <span className="font-medium" style={{ color: "#22c55e" }}>
             Published
@@ -614,8 +621,8 @@ function FormListItem({ form, onDuplicate, onPublish, onDelete, onRename }: any)
           </span>
         )}
       </div>
-      <div className="text-right text-sm text-gray-500">{new Date(form.updated_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-      <div className="flex justify-center">
+      <div className="hidden md:block text-right text-sm text-gray-500">{new Date(form.updated_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+      <div className="hidden md:flex justify-center">
         <Blocks size={16} className="text-gray-400" />
       </div>
 
