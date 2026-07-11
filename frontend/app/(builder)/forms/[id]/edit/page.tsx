@@ -143,7 +143,7 @@ export default function BuilderPage({ params }: { params: Promise<{ id: string }
         setTimeout(() => setPublishAnimationState("live"), 1200);
         setTimeout(() => {
           setPublishAnimationState("done");
-          setPublishUrl(res.url);
+          setPublishUrl(`${window.location.origin}/f/${form.id}`);
         }, 3000);
       } else {
         toast("Form unpublished", "Back in draft mode.", "info");

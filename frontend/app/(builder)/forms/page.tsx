@@ -603,7 +603,9 @@ function FormListItem({ form, onDuplicate, onPublish, onDelete, onRename }: any)
       onClick={(e) => { if (!(e.target as HTMLElement).closest(".kebab-menu")) router.push(`/forms/${form.id}/edit`); }}
     >
       <div className="flex items-center gap-4 min-w-0 flex-1">
-        <div className="w-8 h-8 rounded-lg shrink-0 opacity-90 hidden md:block" style={{ backgroundColor: "var(--accent)" }} />
+        <div className="w-8 h-8 rounded-lg shrink-0 opacity-90 hidden md:flex items-center justify-center text-white font-medium text-sm" style={{ backgroundColor: "var(--accent)" }}>
+          TF
+        </div>
         <div className="flex flex-col min-w-0">
           <span className="font-semibold text-sm truncate" style={{ color: "var(--text)" }}>{form.title}</span>
           {form.description && <span className="text-xs text-gray-500 truncate mt-0.5 hidden md:block">{form.description}</span>}
@@ -684,7 +686,9 @@ function FormGridCard({ form, onDuplicate, onPublish, onDelete, onRename }: any)
     >
       <div className="flex items-start justify-between mb-auto">
         <div className="flex items-start gap-3 min-w-0 pr-4">
-          <div className="w-10 h-10 rounded-xl shrink-0 opacity-90" style={{ backgroundColor: "var(--accent)" }} />
+          <div className="w-10 h-10 rounded-xl shrink-0 opacity-90 flex items-center justify-center text-white font-medium text-base" style={{ backgroundColor: "var(--accent)" }}>
+            TF
+          </div>
           <div className="flex flex-col min-w-0">
             <span className="font-semibold text-sm truncate" style={{ color: "var(--text)" }}>{form.title}</span>
             {form.description && <span className="text-xs text-gray-500 truncate mt-0.5">{form.description}</span>}

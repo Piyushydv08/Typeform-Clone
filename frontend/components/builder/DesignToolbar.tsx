@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Form } from "@/lib/types";
 import { api } from "@/lib/api";
+import { useToast } from "@/components/ui/ToastProvider";
 import { Plus, Palette, Smartphone, Play, Accessibility, Undo2, Languages, Settings } from "lucide-react";
 
 const PRESET_THEMES = [
@@ -16,6 +17,7 @@ const PRESET_THEMES = [
 
 export function DesignToolbar({ form, onUpdate, isMobilePreview, onMobileToggle, onPlayPreview }: { form: Form; onUpdate: (f: Form) => void; isMobilePreview?: boolean; onMobileToggle?: () => void; onPlayPreview?: () => void; }) {
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
   const [tab, setTab] = useState<"gallery" | "my_themes">("gallery");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,8 +77,12 @@ export function DesignToolbar({ form, onUpdate, isMobilePreview, onMobileToggle,
   return (
     <div className="w-full flex items-center justify-between px-4 py-2 border-b bg-white dark:bg-[#1E293B]" style={{ borderColor: "var(--border)" }}>
       {/* Left items */}
-      <div className="flex items-center gap-2 md:gap-4 relative overflow-x-auto hide-scrollbar whitespace-nowrap pr-2">
-        <button className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg font-medium text-xs md:text-sm transition-opacity hover:opacity-90 shrink-0" style={{ backgroundColor: "var(--text)", color: "var(--bg)" }}>
+      <div className="flex items-center gap-2 md:gap-4 relative pr-2">
+        <button 
+          onClick={() => toast("Use the Content Panel", "Click on the left sidebar to add new questions.", "info")}
+          className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 rounded-lg font-medium text-xs md:text-sm transition-opacity hover:opacity-90 shrink-0 cursor-pointer" 
+          style={{ backgroundColor: "var(--text)", color: "var(--bg)" }}
+        >
           <Plus size={16} /> <span className="hidden sm:inline">Add content</span>
         </button>
 
