@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef } from "react";
 import { api } from "@/lib/api";
 import { PublicForm } from "@/lib/types";
 import { ProgressBar } from "@/components/respondent/ProgressBar";
@@ -15,6 +15,7 @@ export default function RespondentPage({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const answersRef = useRef<Record<string, any>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -60,7 +61,7 @@ export default function RespondentPage({ params }: { params: Promise<{ id: strin
   const validateCurrent = (): boolean => {
     if (!form) return false;
     const q = form.questions[currentIndex];
-    const val = answers[q.id];
+    const val = answersRef.current[q.id];
     if (q.required && (val === undefined || val === null || val === "")) {
       setErrors((prev) => ({ ...prev, [q.id]: "This field is required." }));
       return false;
@@ -112,14 +113,21 @@ export default function RespondentPage({ params }: { params: Promise<{ id: strin
   const handleSubmit = async () => {
     if (!form) return;
     setIsSubmitting(true);
-    const hasFiles = Object.values(answers).some((v) => v instanceof File);
+    const currentAnswers = answersRef.current;
+    const hasFiles = Object.values(currentAnswers).some((v) => v instanceof File || (v && typeof v === 'object' && 'name' in v));
     try {
       if (hasFiles) {
         const fd = new FormData();
-        Object.entries(answers).forEach(([k, v]) => fd.append(k, v));
+        Object.entries(currentAnswers).forEach(([k, v]) => {
+          if (Array.isArray(v)) {
+            v.forEach(item => fd.append(k, item));
+          } else {
+            fd.append(k, v as any);
+          }
+        });
         await api.public.submit(form.id, fd, true);
       } else {
-        await api.public.submit(form.id, answers, false);
+        await api.public.submit(form.id, currentAnswers, false);
       }
       setIsSubmitted(true);
     } catch (e: any) {
@@ -199,7 +207,8 @@ export default function RespondentPage({ params }: { params: Promise<{ id: strin
             value={answers[form.questions[currentIndex].id]}
             error={errors[form.questions[currentIndex].id]}
             onChange={(val) => {
-              setAnswers((prev) => ({ ...prev, [form.questions[currentIndex].id]: val }));
+              answersRef.current = { ...answersRef.current, [form.questions[currentIndex].id]: val };
+              setAnswers(answersRef.current);
               setErrors((prev) => { const n = { ...prev }; delete n[form.questions[currentIndex].id]; return n; });
             }}
             onAdvance={handleAdvance}

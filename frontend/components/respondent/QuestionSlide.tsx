@@ -25,9 +25,22 @@ export function QuestionSlide({ question, index, value, error, onChange, onAdvan
       if ((question.type === "multiple_choice" || question.type === "dropdown") && question.options) {
         const key = e.key.toUpperCase();
         const code = key.charCodeAt(0);
+        const isMulti = question.type === "multiple_choice" && question.validation_config?.multiple_selection;
+        
         if (code >= 65 && code < 65 + question.options.length) {
-          onChange(question.options[code - 65]);
-          setTimeout(onAdvance, 300);
+          const val = question.options[code - 65];
+          if (isMulti) {
+             let current = Array.isArray(value) ? value : (value ? [value] : []);
+             if (current.includes(val)) {
+               onChange(current.filter((v: string) => v !== val));
+             } else {
+               current = current.filter(v => v !== "None of the above");
+               onChange([...current, val]);
+             }
+          } else {
+            onChange(val);
+            setTimeout(onAdvance, 300);
+          }
         }
       }
       if (question.type === "yes_no") {
@@ -216,8 +229,16 @@ function renderInput(
 
       const toggleMulti = (val: string) => {
         let current = Array.isArray(value) ? value : (value ? [value] : []);
-        if (current.includes(val)) {
-          onChange(current.filter((v: string) => v !== val));
+        const isOtherVal = val === "Other" || val.startsWith("Other: ");
+        
+        const hasExisting = current.some((v: string) => 
+          v === val || (isOtherVal && (v === "Other" || v.startsWith("Other: ")))
+        );
+
+        if (hasExisting) {
+          onChange(current.filter((v: string) => 
+            v !== val && !(isOtherVal && (v === "Other" || v.startsWith("Other: ")))
+          ));
         } else {
           current = current.filter(v => v !== "None of the above");
           if (val === "None of the above") {
@@ -238,36 +259,81 @@ function renderInput(
       };
 
       const renderOption = (opt: string, i: number, label: string) => {
-        const isSelected = isMulti ? (Array.isArray(value) && value.includes(opt)) : valStr === opt;
+        const isOther = opt.startsWith("Other");
+        // For other, we might store "Other: <user input>"
+        const isSelected = isMulti 
+          ? (Array.isArray(value) && value.some((v: string) => v === opt || (isOther && v.startsWith("Other: "))))
+          : (valStr === opt || (isOther && valStr.startsWith("Other: ")));
+
+        const handleOtherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          const text = e.target.value;
+          const newVal = `Other: ${text}`;
+          if (isMulti) {
+            let current = Array.isArray(value) ? value : (value ? [value] : []);
+            // Replace the existing Other entry
+            current = current.filter((v: string) => !v.startsWith("Other: ") && v !== "Other");
+            if (text) {
+              onChange([...current, newVal]);
+            } else {
+              onChange([...current, "Other"]);
+            }
+          } else {
+            onChange(text ? newVal : "Other");
+          }
+        };
+
+        const otherText = isMulti 
+          ? (Array.isArray(value) ? value.find((v: string) => v.startsWith("Other: "))?.replace("Other: ", "") || "" : "")
+          : (valStr.startsWith("Other: ") ? valStr.replace("Other: ", "") : "");
+
         return (
-          <button
-            key={i}
-            onClick={() => handleSelect(opt)}
-            className="w-full flex items-center text-left gap-2 md:gap-4 p-3 md:p-4 border-2 rounded-xl md:rounded-2xl transition-all cursor-pointer"
-            style={{
-              borderColor: isSelected ? "var(--accent)" : "var(--accent)", // Changed to match LivePreview for consistent border
-              backgroundColor: isSelected ? "var(--accent)" : "transparent",
-              color: isSelected ? "var(--accent-text, #fff)" : "var(--text)",
-              boxShadow: isSelected ? "0 2px 12px rgba(0,0,0,0.15)" : "none",
-            }}
-          >
-            <div
-              className="w-6 h-6 md:w-8 md:h-8 rounded-md md:rounded-lg border-2 flex items-center justify-center text-xs font-bold shrink-0 transition-all"
+          <div key={i} className="flex flex-col gap-2 w-full">
+            <button
+              onClick={() => handleSelect(opt)}
+              className="w-full flex items-center text-left gap-2 md:gap-4 p-3 md:p-4 border-2 rounded-xl md:rounded-2xl transition-all cursor-pointer"
               style={{
-                borderColor: isSelected ? "var(--accent)" : "var(--border)",
+                borderColor: isSelected ? "var(--accent)" : "var(--accent)", // Changed to match LivePreview for consistent border
                 backgroundColor: isSelected ? "var(--accent)" : "transparent",
-                color: isSelected ? "var(--accent-text, #fff)" : "var(--text-muted)",
+                color: isSelected ? "var(--accent-text, #fff)" : "var(--text)",
+                boxShadow: isSelected ? "0 2px 12px rgba(0,0,0,0.15)" : "none",
               }}
             >
-              {label}
-            </div>
-            <span
-              className="text-lg md:text-xl font-medium"
-              style={{ color: "inherit" }}
-            >
-              {opt}
-            </span>
-          </button>
+              <div
+                className="w-6 h-6 md:w-8 md:h-8 rounded-md md:rounded-lg border-2 flex items-center justify-center text-xs font-bold shrink-0 transition-all"
+                style={{
+                  borderColor: isSelected ? "var(--accent)" : "var(--border)",
+                  backgroundColor: isSelected ? "var(--accent)" : "transparent",
+                  color: isSelected ? "var(--accent-text, #fff)" : "var(--text-muted)",
+                }}
+              >
+                {label}
+              </div>
+              <span
+                className="text-lg md:text-xl font-medium"
+                style={{ color: "inherit" }}
+              >
+                {isOther ? "Other" : opt}
+              </span>
+            </button>
+            {isOther && isSelected && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="w-full pl-[52px] md:pl-[68px]"
+              >
+                <input
+                  autoFocus
+                  type="text"
+                  value={otherText}
+                  onChange={handleOtherChange}
+                  placeholder="Please specify..."
+                  className="w-full py-2 border-b-2 bg-transparent outline-none text-lg"
+                  style={{ borderColor: "var(--accent)", color: "var(--text)" }}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </motion.div>
+            )}
+          </div>
         );
       };
 

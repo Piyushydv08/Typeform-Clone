@@ -33,11 +33,20 @@ async def submit_form(id: str, request: Request, db: Session = Depends(get_db)):
     
     if "multipart/form-data" in content_type:
         form_data = await request.form()
-        for key, value in form_data.items():
-            if isinstance(value, UploadFile):
+        print(f"[submit] Parsed form_data keys: {list(form_data.keys())}")
+        for key, value in form_data.multi_items():
+            print(f"[submit] form_data item: {key} -> type {type(value)}")
+            if hasattr(value, "filename") and hasattr(value, "file"):
+                print(f"[submit] found UploadFile for {key}: {value.filename}")
                 files_dict[key] = value
             else:
-                answers_dict[key] = value
+                if key in answers_dict:
+                    if isinstance(answers_dict[key], list):
+                        answers_dict[key].append(value)
+                    else:
+                        answers_dict[key] = [answers_dict[key], value]
+                else:
+                    answers_dict[key] = value
     else:
         try:
             answers_dict = await request.json()
@@ -66,8 +75,26 @@ async def submit_form(id: str, request: Request, db: Session = Depends(get_db)):
                     except ValueError:
                         errors[q.id] = "Must be a valid number."
                 elif q.type in ["multiple_choice", "dropdown"]:
-                    if val not in q.options:
-                        errors[q.id] = "Please select a valid option."
+                    if isinstance(ans, list):
+                        for item in ans:
+                            item_str = str(item).strip()
+                            is_valid = item_str in q.options
+                            if not is_valid and q.validation_config:
+                                if q.validation_config.get('has_other') and item_str.startswith('Other: '):
+                                    is_valid = True
+                                elif q.validation_config.get('has_none') and item_str == 'None of the above':
+                                    is_valid = True
+                            if not is_valid:
+                                errors[q.id] = f"Invalid option selected: {item_str}"
+                    else:
+                        is_valid = val in q.options
+                        if not is_valid and q.validation_config:
+                            if q.validation_config.get('has_other') and val.startswith('Other: '):
+                                is_valid = True
+                            elif q.validation_config.get('has_none') and val == 'None of the above':
+                                is_valid = True
+                        if not is_valid:
+                            errors[q.id] = "Please select a valid option."
                 elif q.type == "rating":
                     try:
                         v = int(val)
@@ -111,7 +138,8 @@ async def submit_form(id: str, request: Request, db: Session = Depends(get_db)):
         else:
             ans = answers_dict.get(q.id)
             if ans is not None and str(ans).strip() != "" and q.id != "response_id":
-                db.add(models.Answer(response_id=response.id, question_id=q.id, answer_value=str(ans)))
+                val_to_save = ", ".join(ans) if isinstance(ans, list) else str(ans)
+                db.add(models.Answer(response_id=response.id, question_id=q.id, answer_value=val_to_save))
                 
     db.commit()
     print(f"[submit] Saved response {response.id} for form {id} with answers for {len(form.questions)} questions")
@@ -157,7 +185,8 @@ async def partial_submit(id: str, request: Request, db: Session = Depends(get_db
     for q_id, val in answers_dict.items():
         if val is not None and str(val).strip() != "" and q_id != "response_id":
             # Just store partials blindly, no deep validation required for partial saves
-            db.add(models.Answer(response_id=response.id, question_id=q_id, answer_value=str(val)))
+            val_to_save = ", ".join(val) if isinstance(val, list) else str(val)
+            db.add(models.Answer(response_id=response.id, question_id=q_id, answer_value=val_to_save))
             
     db.commit()
     return {"success": True, "response_id": response.id}

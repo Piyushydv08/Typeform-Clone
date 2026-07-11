@@ -13,7 +13,6 @@ export function QuestionEditor({
   question?: Question;
   onUpdate: (q: Question) => void;
 }) {
-  // Initialize directly from prop so first render already has data
   const [localQ, setLocalQ] = useState<Question | null>(question ?? null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -39,8 +38,19 @@ export function QuestionEditor({
     setSaved(false);
 
     saveTimeout.current = setTimeout(async () => {
+      // Send the full state to ensure backend is fully synchronized
+      const payload = {
+        type: newQ.type,
+        title: newQ.title,
+        description: newQ.description,
+        required: newQ.required,
+        order_index: newQ.order_index,
+        options: newQ.options,
+        validation_config: newQ.validation_config,
+      };
+      
       try {
-        await api.questions.update(newQ.id, updates);
+        await api.questions.update(newQ.id, payload);
         setSaved(true);
         setTimeout(() => setSaved(false), 2500);
       } catch (e: any) {

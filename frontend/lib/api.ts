@@ -15,7 +15,11 @@ async function fetchAPI(endpoint: string, options: RequestInit = {}) {
     let errorMsg = 'An error occurred';
     try {
       const err = await res.json();
-      errorMsg = err.detail || JSON.stringify(err);
+      if (err.detail && typeof err.detail === 'object') {
+        errorMsg = JSON.stringify(err.detail);
+      } else {
+        errorMsg = err.detail || JSON.stringify(err);
+      }
     } catch (e) {
       errorMsg = res.statusText;
     }

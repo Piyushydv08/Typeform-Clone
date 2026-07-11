@@ -370,13 +370,26 @@ export default function ResponsesPage({ params }: { params: Promise<{ id: string
                         <span style={{ color: "var(--accent)" }}>{idx + 1}. </span>
                         {ans.question_title}
                       </h4>
-                      <p className="text-base font-medium whitespace-pre-wrap leading-relaxed" style={{ color: "var(--text)" }}>
-                        {ans.answer_value || (
-                          <span style={{ color: "var(--text-faint)", fontStyle: "italic", fontWeight: 400 }}>
-                            No answer provided
-                          </span>
-                        )}
-                      </p>
+                      {ans.type === "file_upload" && ans.answer_value ? (
+                        <a
+                          href={ans.answer_value}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 border rounded-lg text-sm font-semibold transition-colors"
+                          style={{ borderColor: "var(--border)", color: "var(--text)", backgroundColor: "var(--card)" }}
+                        >
+                          <FileText size={16} />
+                          Open File
+                        </a>
+                      ) : (
+                        <p className="text-base font-medium whitespace-pre-wrap leading-relaxed" style={{ color: "var(--text)" }}>
+                          {ans.answer_value || (
+                            <span style={{ color: "var(--text-faint)", fontStyle: "italic", fontWeight: 400 }}>
+                              No answer provided
+                            </span>
+                          )}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
